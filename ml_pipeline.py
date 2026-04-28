@@ -14,6 +14,7 @@ import joblib
 import subprocess
 import os
 import warnings
+import json
 
 # Set plot style
 sns.set_theme(style="whitegrid")
@@ -285,6 +286,9 @@ def main():
     # Step 5: Visualizations & Saving
     # -------------------------------------------------------------
     plot_metrics(results)
+
+    with open('metrics.json', 'w') as f:
+        json.dump(results, f)
 
     # Export the best model (e.g. Reweighting model as it usually maintains feature richness)
     print("\n💾 Exporting the Fairest Model (Reweighting)...")

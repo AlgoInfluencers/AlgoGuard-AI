@@ -1,4 +1,4 @@
-# Fair ML Platform (GDG Solution Challenge)
+# AlgoGuard AI (GDG Solution Challenge)
 
 An end-to-end Bias Detection, Mitigation, and Structural Network Analysis pipeline to ensure ethical and fair Machine Learning models.
 

@@ -1,0 +1,48 @@
+graph TD
+    %% Styling
+    classDef frontend fill:#4285f4,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef backend fill:#ea4335,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef ml fill:#fbbc04,stroke:#fff,stroke-width:2px,color:#000;
+    classDef cpp fill:#34a853,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef google fill:#a142f4,stroke:#fff,stroke-width:2px,color:#fff;
+
+    %% Nodes
+    subgraph "Client Layer"
+        UI["Next.js Frontend (React) <br/> Material Design UI"]:::frontend
+        CSV["PapaParse <br/> Client-Side Preview"]:::frontend
+    end
+
+    subgraph "Orchestration Layer"
+        API["FastAPI Server <br/> (Python / Uvicorn)"]:::backend
+    end
+
+    subgraph "Machine Learning Engine"
+        PreProc["Data Preprocessing <br/> (Pandas / Scikit)"]:::ml
+        BiasDet["Bias Detection <br/> (SPD, EOD Metrics)"]:::ml
+        Mitig["Bias Mitigation <br/> (Reweighting, Resampling)"]:::ml
+    end
+
+    subgraph "Core Engines"
+        CPP["C++ Graph Engine <br/> (Structural Similarity)"]:::cpp
+    end
+
+    subgraph "Google Cloud Services"
+        Gemini["Google Gemini 2.5 Flash <br/> (Multilingual Ethics Report)"]:::google
+    end
+
+    %% Connections
+    UI -- "Uploads CSV & Config" --> API
+    UI -. "Reads top 5 rows" .-> CSV
+    
+    API -- "Triggers Pipeline" --> PreProc
+    PreProc -- "Extracts Features" --> BiasDet
+    BiasDet -- "Flags Bias" --> Mitig
+    
+    Mitig -- "Computes Relationships" --> CPP
+    CPP -- "Returns Graph Image" --> API
+    
+    Mitig -- "Exports metrics.json" --> API
+    API -- "Sends JSON + Prompt" --> Gemini
+    Gemini -- "Returns Translated Report" --> API
+    
+    API -- "Returns Analysis Payload" --> UI

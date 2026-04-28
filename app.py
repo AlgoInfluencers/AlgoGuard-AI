@@ -6,7 +6,7 @@ import sys
 
 st.set_page_config(page_title="Fairness Pipeline", layout="wide", page_icon="⚖️")
 
-st.title("⚖️ Fair ML Platform")
+st.title("⚖️ AlgoGuard AI")
 st.markdown("Automated Bias Detection, Mitigation, and Structural Network Analysis for the GDG Solution Challenge.")
 
 # --- SIDEBAR configuration ---

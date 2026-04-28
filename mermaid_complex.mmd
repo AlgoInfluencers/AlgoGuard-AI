@@ -1,0 +1,80 @@
+flowchart TB
+    %% Dark Theme Styling
+    classDef default fill:#2d3436,stroke:#636e72,stroke-width:2px,color:#dfe6e9;
+    
+    classDef userNode fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff,rx:20px,ry:20px;
+    classDef componentNode fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff;
+    classDef serviceNode fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff;
+    classDef dbNode fill:#27ae60,stroke:#2ecc71,stroke-width:2px,color:#fff;
+    classDef extNode fill:#d63031,stroke:#ff7675,stroke-width:2px,color:#fff;
+
+    %% End User
+    User(["End User (Browser)"]):::userNode
+
+    %% Frontend Layer
+    subgraph Frontend ["Frontend Layer (Next.js / React)"]
+        direction TB
+        subgraph Pages ["Pages"]
+            direction LR
+            Dashboard["Dashboard Page"]:::componentNode
+        end
+        subgraph UIComponents ["UI Components"]
+            direction LR
+            Upload["File Uploader"]:::componentNode
+            Viewer["Data Preview Table"]:::componentNode
+            ReportUI["AI Report Panel"]:::componentNode
+        end
+        Dashboard --- UIComponents
+    end
+
+    %% Backend Layer
+    subgraph Backend ["Backend Layer (FastAPI / Python)"]
+        direction TB
+        API{"FastAPI Server"}:::serviceNode
+        
+        subgraph Services ["ML Pipeline Services"]
+            direction LR
+            PreProc["Data Preprocessor"]:::serviceNode
+            BiasDet["Bias Detector"]:::serviceNode
+            Mitig["Bias Mitigator"]:::serviceNode
+            GraphEng["C++ Graph Engine"]:::serviceNode
+        end
+        API --> PreProc
+        PreProc --> BiasDet
+        BiasDet --> Mitig
+        Mitig --> GraphEng
+    end
+
+    %% Storage Layer
+    subgraph Storage ["Data Persistence Layer"]
+        direction LR
+        CSV[("Local CSV Storage")]:::dbNode
+        JSON[("Metrics JSON")]:::dbNode
+    end
+
+    %% External Services
+    subgraph External ["External Services / APIs"]
+        direction LR
+        Gemini{"Google Gemini 2.5 Flash API"}:::extNode
+    end
+
+    %% Connections
+    User -- "HTTPS" --> Dashboard
+    Dashboard -- "REST API (POST /api/analyze)" --> API
+    
+    API -- "Reads/Writes" --> CSV
+    Mitig -- "Exports" --> JSON
+    API -- "Reads" --> JSON
+    
+    API -- "Prompt + Metrics" --> Gemini
+    Gemini -- "AI Ethics Report" --> API
+
+    %% Style the subgraphs
+    style Frontend fill:#1e1e1e,stroke:#0984e3,stroke-width:2px,stroke-dasharray: 5 5,color:#0984e3
+    style Backend fill:#1e1e1e,stroke:#00b894,stroke-width:2px,stroke-dasharray: 5 5,color:#00b894
+    style Storage fill:#1e1e1e,stroke:#27ae60,stroke-width:2px,stroke-dasharray: 5 5,color:#27ae60
+    style External fill:#1e1e1e,stroke:#d63031,stroke-width:2px,stroke-dasharray: 5 5,color:#d63031
+    style Pages fill:#2d3436,stroke:#636e72,stroke-width:1px,color:#dfe6e9
+    style UIComponents fill:#2d3436,stroke:#636e72,stroke-width:1px,color:#dfe6e9
+    style Services fill:#2d3436,stroke:#636e72,stroke-width:1px,color:#dfe6e9
+
