@@ -151,7 +151,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen relative z-10 w-full max-w-[1440px] mx-auto bg-[#f8f9fa]">
+    <div className="flex flex-col min-h-screen relative z-10 w-full bg-[#f8f9fa]">
       {/* App Bar (Google Style) */}
       <header className="px-6 lg:px-12 py-4 flex items-center justify-between border-b border-[#dadce0] bg-white sticky top-0 z-50 shadow-sm" style={{ animation: 'fadeInDown 0.5s ease' }}>
         <div className="flex items-center gap-3">
@@ -171,12 +171,12 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="flex flex-col lg:flex-row flex-1 p-6 lg:p-10 gap-8">
+      <div className="flex flex-col lg:flex-row flex-1 p-6 lg:p-12 gap-12 max-w-[1600px] mx-auto w-full">
         
         {/* Sidebar Configuration */}
-        <div className="w-full lg:w-[420px] flex flex-col gap-8" style={{ animation: 'fadeInLeft 0.5s ease' }}>
+        <div className="w-full lg:w-[460px] flex flex-col gap-8" style={{ animation: 'fadeInLeft 0.5s ease' }}>
           
-          <div className="material-card p-8 flex flex-col gap-8">
+          <div className="material-card p-10 flex flex-col gap-8 border-none shadow-md">
             <div>
               <h2 className="text-2xl font-medium text-[#202124] google-sans mb-2">Pipeline Configuration</h2>
               <p className="text-[#5f6368] leading-relaxed">Configure parameters and upload your dataset.</p>
