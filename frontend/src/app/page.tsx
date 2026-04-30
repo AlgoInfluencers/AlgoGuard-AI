@@ -100,7 +100,7 @@ export default function Home() {
     if (file) formData.append('file', file);
 
     try {
-      const response = await fetch('https://gdg-solution-challenge-rybg.onrender.com/api/analyze', {
+      const response = await fetch('http://127.0.0.1:8000/api/analyze', {
         method: 'POST',
         body: formData,
       });
