@@ -398,7 +398,7 @@ export default function Home() {
                 </div>
                 <div className="flex justify-end relative z-10">
                    <button onClick={downloadReport} className="text-sm font-medium text-purple-300 hover:text-white bg-purple-900/30 hover:bg-purple-800/50 px-4 py-2 rounded-lg transition-colors border border-purple-500/30 flex items-center gap-2">
-                      <Download className="w-4 h-4" /> Export Log
+                      <Download className="w-4 h-4" /> Export PDF
                    </button>
                 </div>
               </motion.div>
