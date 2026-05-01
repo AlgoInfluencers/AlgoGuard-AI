@@ -4,6 +4,7 @@ import Papa from 'papaparse';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import { Shield, Upload, FileText, Activity, Network, Terminal, Download, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -31,13 +32,16 @@ export default function Home() {
       return;
     }
     
+    // Extract a short summary for the UI
+    const summary = aiReport.length > 400 ? aiReport.substring(0, 400) + "...\n\n[Download PDF for full analysis]" : aiReport;
+
     let i = 0;
     // We delay the initial clear slightly to avoid synchronous setState warnings
     setTimeout(() => setDisplayedReport(''), 0);
     const timer = setInterval(() => {
-      setDisplayedReport(aiReport.substring(0, i));
+      setDisplayedReport(summary.substring(0, i));
       i++;
-      if (i > aiReport.length) clearInterval(timer);
+      if (i > summary.length) clearInterval(timer);
     }, 15);
     
     return () => clearInterval(timer);
@@ -149,15 +153,41 @@ export default function Home() {
 
   const downloadReport = () => {
     if (!aiReport) return;
-    const blob = new Blob([`AlgoGuard AI - Ethics Report\n\nTarget Variable: ${targetCol}\nSensitive Attribute: ${sensitiveCol}\n\n${aiReport}`], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'AlgoGuard_Ethics_Report.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("AlgoGuard AI - Ethics Report", 20, 20);
+    
+    // Metadata
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Target Variable: ${targetCol}`, 20, 30);
+    doc.text(`Sensitive Attribute: ${sensitiveCol}`, 20, 38);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 46);
+    
+    // Separator line
+    doc.setLineWidth(0.5);
+    doc.line(20, 50, 190, 50);
+    
+    // Full Report Content
+    doc.setFontSize(11);
+    const splitText = doc.splitTextToSize(aiReport, 170); // 210mm page width - 40mm margins
+    
+    // Handle multipage if text is too long
+    let y = 60;
+    for (let i = 0; i < splitText.length; i++) {
+      if (y > 280) { // Page height is 297mm
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(splitText[i], 20, y);
+      y += 6;
+    }
+    
+    doc.save('AlgoGuard_Ethics_Report.pdf');
   };
 
   const containerVariants = {
