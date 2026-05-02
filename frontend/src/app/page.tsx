@@ -228,16 +228,16 @@ export default function Home() {
         </div>
       </motion.header>
 
-      <div className="flex flex-col lg:flex-row flex-1 px-12 py-6 md:px-20 lg:px-32 lg:py-16 gap-8 max-w-[1500px] mx-auto w-full">
+      <div className="flex flex-col xl:flex-row flex-1 px-6 md:px-12 lg:px-20 py-8 gap-8 max-w-[1600px] mx-auto w-full">
         
         {/* Sidebar Configuration */}
         <motion.div 
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="w-full lg:w-[460px] flex flex-col gap-6"
+          className="w-full xl:w-[460px] flex flex-col gap-6 min-w-0 shrink-0"
         >
-          <div className="glass-panel overflow-hidden flex flex-col gap-0">
+          <div className="glass-panel overflow-hidden flex flex-col gap-0 m-2 sm:m-4">
             <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
               <div className="flex items-center gap-2">
                 <div className="terminal-dot dot-red"></div>
@@ -385,7 +385,7 @@ export default function Home() {
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex-1 flex flex-col gap-6"
+          className="flex-1 flex flex-col gap-6 min-w-0"
         >
           {/* AI Ethics Report Panel */}
           <AnimatePresence>
@@ -393,7 +393,7 @@ export default function Home() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="glass-panel flex flex-col border-l-4 border-l-purple-500 relative overflow-hidden"
+                className="glass-panel flex flex-col border-l-4 border-l-purple-500 relative overflow-hidden m-2 sm:m-4"
               >
                 <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)] relative z-20">
                   <div className="flex items-center gap-2">
@@ -423,7 +423,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {/* Metrics Graph */}
-            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px]">
+            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px] m-2 sm:m-4">
               <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
                 <div className="flex items-center gap-2">
                   <div className="terminal-dot dot-red"></div>
@@ -457,7 +457,7 @@ export default function Home() {
             </div>
 
             {/* Network Graph */}
-            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px]">
+            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px] m-2 sm:m-4">
               <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
                 <div className="flex items-center gap-2">
                   <div className="terminal-dot dot-red"></div>
@@ -496,7 +496,7 @@ export default function Home() {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-panel overflow-hidden flex flex-col border-t-2 border-t-cyan-500"
+                className="glass-panel overflow-hidden flex flex-col border-t-2 border-t-cyan-500 m-2 sm:m-4"
               >
                 <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
                   <div className="flex items-center gap-2">
