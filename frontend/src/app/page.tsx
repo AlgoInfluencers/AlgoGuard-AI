@@ -213,9 +213,7 @@ export default function Home() {
         className="px-6 lg:px-12 py-4 flex items-center justify-between border-b border-[rgba(55,65,81,0.5)] bg-[rgba(17,24,39,0.7)] backdrop-blur-md sticky top-0 z-50"
       >
         <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
+          <img src="/logo.png" alt="AlgoGuard Logo" className="w-10 h-10 object-contain rounded-lg" />
           <h1 className="text-2xl font-bold tech-font tracking-tight text-white">
             Algo<span className="text-cyan-400">Guard</span>
           </h1>
