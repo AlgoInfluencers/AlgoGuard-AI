@@ -228,7 +228,7 @@ export default function Home() {
         </div>
       </motion.header>
 
-      <div className="flex flex-col xl:flex-row flex-1 px-6 md:px-12 lg:px-20 py-8 gap-8 max-w-[1600px] mx-auto w-full">
+      <div className="flex flex-col xl:flex-row flex-1 px-6 md:px-12 lg:px-20 pt-20 pb-12 gap-8 max-w-[1600px] mx-auto w-full">
         
         {/* Sidebar Configuration */}
         <motion.div 
