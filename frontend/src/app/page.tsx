@@ -228,7 +228,7 @@ export default function Home() {
         </div>
       </motion.header>
 
-      <div className="flex flex-col xl:flex-row flex-1 px-6 md:px-12 lg:px-20 pt-20 pb-12 gap-8 max-w-[1600px] mx-auto w-full">
+      <div className="flex flex-col xl:flex-row flex-1 px-6 md:px-12 lg:px-20 pt-20 pb-12 gap-8 max-w-[1600px] mx-auto w-full" style={{ marginTop: '60px', gap: '32px' }}>
         
         {/* Sidebar Configuration */}
         <motion.div 
@@ -237,9 +237,9 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="w-full xl:w-[460px] flex flex-col gap-6 min-w-0 shrink-0"
         >
-          <div className="glass-panel overflow-hidden flex flex-col gap-0 m-2 sm:m-4">
-            <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
-              <div className="flex items-center gap-2">
+          <div className="glass-panel overflow-hidden flex flex-col gap-0 m-2 sm:m-4" style={{ margin: '16px', borderRadius: '16px' }}>
+            <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]" style={{ padding: '12px 16px' }}>
+              <div className="flex items-center gap-2" style={{ gap: '8px' }}>
                 <div className="terminal-dot dot-red"></div>
                 <div className="terminal-dot dot-yellow"></div>
                 <div className="terminal-dot dot-green"></div>
@@ -394,9 +394,10 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="glass-panel flex flex-col border-l-4 border-l-purple-500 relative overflow-hidden m-2 sm:m-4"
+                style={{ margin: '16px', borderRadius: '16px' }}
               >
-                <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)] relative z-20">
-                  <div className="flex items-center gap-2">
+                <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)] relative z-20" style={{ padding: '12px 16px' }}>
+                  <div className="flex items-center gap-2" style={{ gap: '8px' }}>
                     <div className="terminal-dot dot-red"></div>
                     <div className="terminal-dot dot-yellow"></div>
                     <div className="terminal-dot dot-green"></div>
@@ -421,11 +422,11 @@ export default function Home() {
             )}
           </AnimatePresence>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6" style={{ gap: '24px' }}>
             {/* Metrics Graph */}
-            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px] m-2 sm:m-4">
-              <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
-                <div className="flex items-center gap-2">
+            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px] m-2 sm:m-4" style={{ margin: '16px', borderRadius: '16px' }}>
+              <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]" style={{ padding: '12px 16px' }}>
+                <div className="flex items-center gap-2" style={{ gap: '8px' }}>
                   <div className="terminal-dot dot-red"></div>
                   <div className="terminal-dot dot-yellow"></div>
                   <div className="terminal-dot dot-green"></div>
@@ -457,9 +458,9 @@ export default function Home() {
             </div>
 
             {/* Network Graph */}
-            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px] m-2 sm:m-4">
-              <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
-                <div className="flex items-center gap-2">
+            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px] m-2 sm:m-4" style={{ margin: '16px', borderRadius: '16px' }}>
+              <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]" style={{ padding: '12px 16px' }}>
+                <div className="flex items-center gap-2" style={{ gap: '8px' }}>
                   <div className="terminal-dot dot-red"></div>
                   <div className="terminal-dot dot-yellow"></div>
                   <div className="terminal-dot dot-green"></div>
@@ -497,9 +498,10 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="glass-panel overflow-hidden flex flex-col border-t-2 border-t-cyan-500 m-2 sm:m-4"
+                style={{ margin: '16px', borderRadius: '16px' }}
               >
-                <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
-                  <div className="flex items-center gap-2">
+                <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]" style={{ padding: '12px 16px' }}>
+                  <div className="flex items-center gap-2" style={{ gap: '8px' }}>
                     <div className="terminal-dot dot-red"></div>
                     <div className="terminal-dot dot-yellow"></div>
                     <div className="terminal-dot dot-green"></div>
