@@ -210,7 +210,7 @@ export default function Home() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="px-8 md:px-12 lg:px-16 py-4 flex items-center justify-between border-b border-[rgba(55,65,81,0.5)] bg-[rgba(17,24,39,0.7)] backdrop-blur-md sticky top-0 z-50"
+        className="px-12 md:px-20 lg:px-32 py-4 flex items-center justify-between border-b border-[rgba(55,65,81,0.5)] bg-[rgba(17,24,39,0.7)] backdrop-blur-md sticky top-0 z-50"
       >
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="AlgoGuard Logo" className="w-10 h-10 object-contain rounded-lg" />
@@ -228,7 +228,7 @@ export default function Home() {
         </div>
       </motion.header>
 
-      <div className="flex flex-col lg:flex-row flex-1 px-8 py-6 md:px-12 lg:p-16 gap-8 max-w-[1600px] mx-auto w-full">
+      <div className="flex flex-col lg:flex-row flex-1 px-12 py-6 md:px-20 lg:px-32 lg:py-16 gap-8 max-w-[1500px] mx-auto w-full">
         
         {/* Sidebar Configuration */}
         <motion.div 
