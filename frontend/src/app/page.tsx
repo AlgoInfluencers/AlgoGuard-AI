@@ -237,13 +237,21 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="w-full lg:w-[460px] flex flex-col gap-6"
         >
-          <div className="glass-panel p-8 flex flex-col gap-8">
-            <div>
-              <h2 className="text-2xl font-bold tech-font mb-2 text-white flex items-center gap-2">
-                <Terminal className="w-6 h-6 text-cyan-400" /> Pipeline Config
-              </h2>
-              <p className="text-gray-400 text-sm">Configure parameters and inject dataset.</p>
+          <div className="glass-panel overflow-hidden flex flex-col gap-0">
+            <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
+              <div className="flex items-center gap-2">
+                <div className="terminal-dot dot-red"></div>
+                <div className="terminal-dot dot-yellow"></div>
+                <div className="terminal-dot dot-green"></div>
+              </div>
             </div>
+            <div className="p-8 flex flex-col gap-8">
+              <div>
+                <h2 className="text-2xl font-bold tech-font mb-2 text-white flex items-center gap-2">
+                  <Terminal className="w-6 h-6 text-cyan-400" /> Pipeline Config
+                </h2>
+                <p className="text-gray-400 text-sm">Configure parameters and inject dataset.</p>
+              </div>
             
             <motion.form 
               onSubmit={handleSubmit} 
@@ -367,7 +375,8 @@ export default function Home() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.form>
+              </motion.form>
+            </div>
           </div>
         </motion.div>
 
@@ -384,8 +393,16 @@ export default function Home() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="glass-panel p-6 border-l-4 border-l-purple-500 relative overflow-hidden"
+                className="glass-panel flex flex-col border-l-4 border-l-purple-500 relative overflow-hidden"
               >
+                <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)] relative z-20">
+                  <div className="flex items-center gap-2">
+                    <div className="terminal-dot dot-red"></div>
+                    <div className="terminal-dot dot-yellow"></div>
+                    <div className="terminal-dot dot-green"></div>
+                  </div>
+                </div>
+                <div className="p-6 relative z-10 flex flex-col">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <h3 className="font-bold text-xl mb-4 flex items-center gap-2 gradient-text-secondary tech-font">
                   <Sparkles className="text-purple-400 w-6 h-6" /> AI Ethics Intelligence Report
@@ -399,13 +416,22 @@ export default function Home() {
                       <Download className="w-4 h-4" /> Export PDF
                    </button>
                 </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {/* Metrics Graph */}
-            <div className="glass-panel p-6 flex flex-col min-h-[400px]">
+            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px]">
+              <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
+                <div className="flex items-center gap-2">
+                  <div className="terminal-dot dot-red"></div>
+                  <div className="terminal-dot dot-yellow"></div>
+                  <div className="terminal-dot dot-green"></div>
+                </div>
+              </div>
+              <div className="p-6 flex flex-col flex-1">
               <h3 className="font-bold text-lg mb-4 text-white tech-font flex items-center gap-2">
                  <Activity className="w-5 h-5 text-cyan-400" /> Fairness Tradeoff Analysis
               </h3>
@@ -427,10 +453,19 @@ export default function Home() {
                 {/* Scanline overlay */}
                 <div className="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_51%)] bg-[length:100%_4px]"></div>
               </div>
+              </div>
             </div>
 
             {/* Network Graph */}
-            <div className="glass-panel p-6 flex flex-col min-h-[400px]">
+            <div className="glass-panel overflow-hidden flex flex-col min-h-[400px]">
+              <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
+                <div className="flex items-center gap-2">
+                  <div className="terminal-dot dot-red"></div>
+                  <div className="terminal-dot dot-yellow"></div>
+                  <div className="terminal-dot dot-green"></div>
+                </div>
+              </div>
+              <div className="p-6 flex flex-col flex-1">
               <h3 className="font-bold text-lg mb-4 text-white tech-font flex items-center gap-2">
                  <Network className="w-5 h-5 text-emerald-400" /> Structural Bias Network
               </h3>
@@ -451,6 +486,7 @@ export default function Home() {
                 )}
                 <div className="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_51%)] bg-[length:100%_4px]"></div>
               </div>
+              </div>
             </div>
           </div>
 
@@ -460,8 +496,16 @@ export default function Home() {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-panel p-6 border-t-2 border-t-cyan-500"
+                className="glass-panel overflow-hidden flex flex-col border-t-2 border-t-cyan-500"
               >
+                <div className="bg-[#111827]/80 px-4 py-3 flex items-center border-b border-[rgba(55,65,81,0.5)]">
+                  <div className="flex items-center gap-2">
+                    <div className="terminal-dot dot-red"></div>
+                    <div className="terminal-dot dot-yellow"></div>
+                    <div className="terminal-dot dot-green"></div>
+                  </div>
+                </div>
+                <div className="p-6 flex flex-col">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-white tech-font">
                    <FileText className="text-cyan-400 w-5 h-5" /> Dataset Structure Preview
                 </h3>
@@ -491,6 +535,7 @@ export default function Home() {
                       ))}
                     </motion.tbody>
                   </table>
+                </div>
                 </div>
               </motion.div>
             )}
