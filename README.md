@@ -22,7 +22,7 @@
 ## 🌟 Overview
 Machine learning models often inherit historical biases based on attributes like Gender, Age, or Race. **AlgoGuard AI** tackles this problem by identifying instances of bias, measuring it mathematically, actively mitigating it using algorithmic strategies, and mapping out the structural isolation of demographic groups using graph theory.
 
-To bridge the gap between engineering and compliance, we use **Google Gemini 2.5 Flash** to translate complex statistical mathematics into plain-English (and multilingual) AI Ethics Reports.
+To bridge the gap between engineering and compliance, we use **Google Gemini 3.8 Flash** to translate complex statistical mathematics into plain-English (and multilingual) AI Ethics Reports.
 
 ---
 
@@ -41,7 +41,7 @@ Enterprise bias mitigation tools (like IBM's AI Fairness 360) are highly complex
 ### How does it solve the problem?
 AlgoGuard AI goes beyond merely *detecting* bias; it actively *solves* it:
 1. **Mathematical Mitigation:** Uses a custom C++ Structural Engine and Resampling techniques to mathematically rebalance biased datasets *before* they are deployed.
-2. **AI Translation:** Utilizes Google Gemini 2.5 Flash as an "AI Ethics Officer" to translate statistical mathematics into readable compliance reports.
+2. **AI Translation:** Utilizes Google Gemini 3.8 Flash as an "AI Ethics Officer" to translate statistical mathematics into readable compliance reports.
 
 ### The USP
 > **"Hyper-Accessible, Multilingual Algorithmic Equity."** 
@@ -82,7 +82,7 @@ graph TD
     end
 
     subgraph "Google Cloud Services"
-        Gemini["Google Gemini 2.5 Flash <br/> (Multilingual Ethics Report)"]:::google
+        Gemini["Google Gemini 3.8 Flash <br/> (Multilingual Ethics Report)"]:::google
     end
 
     %% Connections
@@ -121,7 +121,7 @@ graph TD
 *   **C++:** High-speed, low-level execution engine (`graph.cpp`) to rapidly calculate structural similarity graphs.
 
 ### ☁️ Google Cloud Services
-*   **Google Gemini 2.5 Flash API:** Integrated via the `google-genai` SDK to dynamically translate and generate multilingual ethics reports.
+*   **Google Gemini 3.8 Flash API:** Integrated via the `google-genai` SDK to dynamically translate and generate multilingual ethics reports.
 
 ---
 

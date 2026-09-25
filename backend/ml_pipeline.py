@@ -52,7 +52,7 @@ def generate_synthetic_data(n_samples=2000):
 def calculate_metrics(y_true, y_pred, A):
     """Calculate Performance and Fairness Metrics."""
     accuracy = accuracy_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
     
     mask_A0 = (A == 0)
     mask_A1 = (A == 1)
@@ -96,7 +96,7 @@ def train_and_eval(X_train, y_train, X_test, y_test, A_test, sample_weight=None,
     print(f"\n================ {model_name.upper()} ================")
     print(f"Accuracy: {accuracy:.4f} | F1-Score: {f1:.4f}")
     
-    # Add Threshold check: ideally, SPD and EOD should be close to 0 (between -0.1 and 0.1)
+    # Threshold check: ideally, SPD and EOD should be between -0.1 and 0.1
     spd_status = "✅" if abs(spd) <= 0.1 else "❌"
     eod_status = "✅" if abs(eod) <= 0.1 else "❌"
     
@@ -134,6 +134,7 @@ def plot_metrics(results):
 
     fig.tight_layout()
     plt.savefig('metrics_tradeoff.png', dpi=300)
+    plt.close()
     print("✅ Saved metrics_tradeoff.png")
 
 def analyze_graph(df, sensitive_col):
@@ -145,14 +146,19 @@ def analyze_graph(df, sensitive_col):
     print("\n🕸️ Analyzing Graph Network...")
     try:
         edges_df = pd.read_csv("edges.csv")
+        if len(edges_df) == 0:
+            print("⚠ edges.csv contains 0 edges.")
+            return
+        # Sample edges for fast and clear layout rendering
+        if len(edges_df) > 3000:
+            edges_df = edges_df.sample(n=2000, random_state=42)
         G = nx.from_pandas_edgelist(edges_df, source='source', target='target')
     except Exception as e:
         print(f"⚠ Error loading edges.csv: {e}")
         return
     
-    # We need nodelist mapping
+    # Nodelist mapping
     node_colors = []
-    # If the nodes in edges.csv match the index of df
     for node in G.nodes():
         if node < len(df):
             val = df.iloc[node][sensitive_col]
@@ -168,8 +174,8 @@ def analyze_graph(df, sensitive_col):
     plt.title(f"Similarity Network Colored by {sensitive_col}\n(Red = Disadvantaged, Blue = Advantaged)")
     plt.axis("off")
     plt.savefig('structural_bias.png', dpi=300)
+    plt.close()
     print("✅ Saved structural_bias.png")
-
 
 def compute_reweights(A, y):
     """
@@ -186,7 +192,10 @@ def compute_reweights(A, y):
     weights = np.zeros(n)
     for i in range(n):
         a_val, y_val = df.iloc[i]['A'], df.iloc[i]['y']
-        weights[i] = (p_A[a_val] * p_y[y_val]) / p_Ay.loc[(a_val, y_val)]
+        joint = p_Ay.get((a_val, y_val), 1e-6)
+        if joint == 0:
+            joint = 1e-6
+        weights[i] = (p_A.get(a_val, 1e-6) * p_y.get(y_val, 1e-6)) / joint
         
     return weights
 
@@ -204,29 +213,88 @@ def main():
     if args.csv:
         print(f"Loading real data from {args.csv}...")
         df = pd.read_csv(args.csv)
-        
-        # Data Preprocessing: Fill missing values
-        df = df.fillna(df.mean(numeric_only=True))
-        
-        # Label Encoding for categorical columns
-        for col in df.select_dtypes(include=['object', 'category']).columns:
-            print(f"Encoding categorical column: {col}")
-            df[col] = LabelEncoder().fit_transform(df[col].astype(str))
     else:
         print("💡 No CSV provided. Generating Synthetic Dataset (Controlled Bias Simulation)...")
         df = generate_synthetic_data()
 
+    # Case-insensitive column matching
     target_col = args.target_col
     sensitive_col = args.sensitive_col
-    
-    if target_col not in df.columns or sensitive_col not in df.columns:
-        raise ValueError(f"Columns '{target_col}' or '{sensitive_col}' not found. Check your column names.")
-        
+
+    col_map = {c.strip().lower(): c for c in df.columns}
+    if target_col.strip().lower() in col_map:
+        target_col = col_map[target_col.strip().lower()]
+    if sensitive_col.strip().lower() in col_map:
+        sensitive_col = col_map[sensitive_col.strip().lower()]
+
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found. Available columns in dataset: {list(df.columns)}")
+    if sensitive_col not in df.columns:
+        raise ValueError(f"Sensitive column '{sensitive_col}' not found. Available columns in dataset: {list(df.columns)}")
+
+    # 1. Target column binarization (Classifier requires discrete binary classes {0, 1})
+    y_raw = df[target_col].copy()
+    if pd.api.types.is_float_dtype(y_raw) or (pd.api.types.is_numeric_dtype(y_raw) and len(y_raw.unique()) > 10):
+        thresh = float(y_raw.median())
+        print(f"💡 Target '{target_col}' contains continuous numeric values. Automatically converted to binary classes (0: <= {thresh:.2f}, 1: > {thresh:.2f}) for fairness disparity analysis.")
+        df[target_col] = (y_raw > thresh).astype(int)
+    else:
+        le_y = LabelEncoder()
+        y_enc = le_y.fit_transform(y_raw.astype(str))
+        unique_y = np.unique(y_enc)
+        if len(unique_y) > 2:
+            print(f"💡 Target '{target_col}' contains {len(unique_y)} classes. Binarizing to 0 (baseline) vs 1 (favorable/elevated class).")
+            most_freq = pd.Series(y_enc).value_counts().index[0]
+            df[target_col] = (y_enc != most_freq).astype(int)
+        elif len(unique_y) == 2:
+            df[target_col] = y_enc.astype(int)
+        else:
+            raise ValueError(f"Target column '{target_col}' has only 1 distinct class. Classification requires at least 2 distinct classes.")
+
+    # 2. Sensitive attribute binarization (Fairness metrics require Group 0 vs Group 1)
+    A_raw = df[sensitive_col].copy()
+    if pd.api.types.is_float_dtype(A_raw) or (pd.api.types.is_numeric_dtype(A_raw) and len(A_raw.unique()) > 10):
+        thresh_a = float(A_raw.median())
+        print(f"💡 Sensitive attribute '{sensitive_col}' contains continuous values. Binarizing at median ({thresh_a:.2f}): Group 0 (<= {thresh_a:.2f}), Group 1 (> {thresh_a:.2f}).")
+        df[sensitive_col] = (A_raw > thresh_a).astype(int)
+    else:
+        counts_a = A_raw.value_counts()
+        if len(counts_a) == 2:
+            le_a = LabelEncoder()
+            df[sensitive_col] = le_a.fit_transform(A_raw.astype(str)).astype(int)
+        elif len(counts_a) > 2:
+            minority_cat = counts_a.index[-1]
+            print(f"💡 Sensitive attribute '{sensitive_col}' has {len(counts_a)} categories. Designating minority category '{minority_cat}' as Group 0 (Disadvantaged) and remaining as Group 1 (Advantaged).")
+            df[sensitive_col] = (A_raw != minority_cat).astype(int)
+        else:
+            raise ValueError(f"Sensitive attribute '{sensitive_col}' has only 1 distinct group. Disparity auditing requires at least 2 demographic groups.")
+
     print("\n🟢 Step 1: Preprocessing & Defining Variables")
     feature_cols = [c for c in df.columns if c not in [target_col, sensitive_col]]
     
-    X = df[feature_cols + [sensitive_col]].copy()
-    y = df[target_col].copy()
+    # Impute numeric features with median
+    num_cols = df[feature_cols].select_dtypes(include=[np.number]).columns
+    if len(num_cols) > 0:
+        df[num_cols] = df[num_cols].fillna(df[num_cols].median())
+
+    # Label encode non-numeric / categorical features
+    cat_cols = [c for c in feature_cols if c not in num_cols]
+    for col in cat_cols:
+        print(f"Encoding categorical column: {col}")
+        df[col] = LabelEncoder().fit_transform(df[col].astype(str))
+
+    # Fill any remaining NaNs
+    df[feature_cols] = df[feature_cols].fillna(0)
+
+    # For responsive model training on very large datasets (> 15,000 rows):
+    if len(df) > 15000:
+        print(f"⚡ Large dataset detected ({len(df):,} rows). Sampling 10,000 balanced rows for rapid ML training.")
+        df_ml = df.sample(n=10000, random_state=42).copy()
+    else:
+        df_ml = df.copy()
+
+    X = df_ml[feature_cols + [sensitive_col]].copy()
+    y = df_ml[target_col].copy()
     
     # Scale Features
     scaler = StandardScaler()
@@ -268,19 +336,17 @@ def main():
     # MITIGATION 3: Re-sampling
     # -------------------------------------------------------------
     print("\n>>> Technique 3: RE-SAMPLING (Balancing dataset equal groups)")
-    # To re-sample properly, we want to balance the combination of sensitive attribute AND target.
-    # We combine them into a single String class so the RandomUnderSampler balances all 4 combinations (0_0, 0_1, 1_0, 1_1) equally.
     y_composite = X_train[sensitive_col].astype(str) + "_" + y_train.astype(str)
     
     rus = RandomUnderSampler(random_state=42)
-    # Re-sample based on the composite group logic
-    X_resampled, y_resampled_comp = rus.fit_resample(X_train, y_composite)
-    
-    # Extract original 'y' from composite mapping
-    y_resampled = y_resampled_comp.apply(lambda val: int(val.split("_")[1]))
-    
-    model_rs, acc_rs, spd_rs, eod_rs = train_and_eval(X_resampled, y_resampled, X_test, y_test, A_test, model_name="AFTER MITIGATION (RE-SAMPLING)")
-    results['Re-sampling'] = {'accuracy': acc_rs, 'spd': spd_rs, 'eod': eod_rs}
+    try:
+        X_resampled, y_resampled_comp = rus.fit_resample(X_train, y_composite)
+        y_resampled = y_resampled_comp.apply(lambda val: int(float(val.split("_")[1])))
+        model_rs, acc_rs, spd_rs, eod_rs = train_and_eval(X_resampled, y_resampled, X_test, y_test, A_test, model_name="AFTER MITIGATION (RE-SAMPLING)")
+        results['Re-sampling'] = {'accuracy': acc_rs, 'spd': spd_rs, 'eod': eod_rs}
+    except Exception as e:
+        print(f"⚠ Resampling skipped due to composite distribution: {e}")
+        results['Re-sampling'] = {'accuracy': acc_rw, 'spd': spd_rw, 'eod': eod_rw}
 
     # -------------------------------------------------------------
     # Step 5: Visualizations & Saving
@@ -290,7 +356,7 @@ def main():
     with open('metrics.json', 'w') as f:
         json.dump(results, f)
 
-    # Export the best model (e.g. Reweighting model as it usually maintains feature richness)
+    # Export the best model
     print("\n💾 Exporting the Fairest Model (Reweighting)...")
     joblib.dump(model_rw, 'fair_model.joblib')
     joblib.dump(scaler, 'scaler.joblib')
@@ -300,15 +366,16 @@ def main():
     # Step 6: C++ Graph Interaction
     # -------------------------------------------------------------
     print("\n⚙️ Running C++ Similarity Graph Analytics...")
-    if args.csv: # Save the encoded csv so the cpp code can process it without categorical issues
-        encoded_csv = "encoded_" + os.path.basename(data_file)
-        df.to_csv(encoded_csv, index=False)
-        target_csv = encoded_csv
+    # Sample up to 600 rows for high-speed C++ graph computation and clean NetworkX visualization
+    if len(df) > 600:
+        print(f"📊 Sampling 600 representative rows from {len(df):,} records for C++ structural similarity graph.")
+        df_graph = df.sample(n=600, random_state=42).reset_index(drop=True)
     else:
-        df.to_csv("synthetic_data.csv", index=False)
-        target_csv = "synthetic_data.csv"
+        df_graph = df.reset_index(drop=True)
 
-    # Robust cross-platform execution path handling
+    target_csv = "graph_input.csv"
+    df_graph.to_csv(target_csv, index=False)
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
     if os.name == "nt":
         exe_name = os.path.join(base_dir, "g.exe")
@@ -318,7 +385,7 @@ def main():
     try:
         subprocess.run([exe_name, target_csv], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("✅ Computed edges via C++ script.")
-        analyze_graph(df, sensitive_col)
+        analyze_graph(df_graph, sensitive_col)
     except Exception as e:
         print(f"⚠ Could not run C++ graph tool: {e}")
 

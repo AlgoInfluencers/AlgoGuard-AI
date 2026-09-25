@@ -57,9 +57,35 @@ export default function Home() {
         preview: 5,
         skipEmptyLines: true,
         complete: function(results) {
-          if (results.meta.fields) {
-            setPreviewHeaders(results.meta.fields);
+          if (results.meta.fields && results.meta.fields.length > 0) {
+            const fields = results.meta.fields;
+            setPreviewHeaders(fields);
             setPreviewData(results.data as Record<string, string>[]);
+
+            const lowerFields = fields.map(f => f.toLowerCase());
+            // Smart target candidate detection
+            const targetCandidates = ['flood_category', 'flood_risk_score', 'loan_status', 'target', 'risk', 'status', 'label', 'class', 'approved'];
+            let matchedTarget = fields[fields.length - 1];
+            for (const candidate of targetCandidates) {
+              const idx = lowerFields.findIndex(f => f.includes(candidate));
+              if (idx !== -1) {
+                matchedTarget = fields[idx];
+                break;
+              }
+            }
+            setTargetCol(matchedTarget);
+
+            // Smart sensitive candidate detection
+            const sensitiveCandidates = ['climatic_zone', 'province', 'district', 'gender', 'sex', 'race', 'age', 'ethnicity'];
+            let matchedSensitive = fields.length > 1 ? (fields[0] === matchedTarget ? fields[1] : fields[0]) : fields[0];
+            for (const candidate of sensitiveCandidates) {
+              const idx = lowerFields.findIndex(f => f.includes(candidate));
+              if (idx !== -1 && fields[idx] !== matchedTarget) {
+                matchedSensitive = fields[idx];
+                break;
+              }
+            }
+            setSensitiveCol(matchedSensitive);
           }
         }
       });
@@ -107,6 +133,8 @@ export default function Home() {
     }, 2500);
 
     const formData = new FormData();
+    formData.append('target_col', targetCol);
+    formData.append('sensitive_col', sensitiveCol);
     formData.append('Target', targetCol);
     formData.append('Gender', sensitiveCol);
     formData.append('language', language);
@@ -114,10 +142,24 @@ export default function Home() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('https://gdg-solution-challenge-rybg.onrender.com/api/analyze', {
-        method: 'POST',
-        body: formData,
-      });
+      const primaryApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/analyze';
+      let response;
+      try {
+        response = await fetch(primaryApiUrl, {
+          method: 'POST',
+          body: formData,
+        });
+      } catch (localErr) {
+        // If connecting to local fails and no custom URL was configured, fall back to remote Render API
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+          response = await fetch('https://gdg-solution-challenge-rybg.onrender.com/api/analyze', {
+            method: 'POST',
+            body: formData,
+          });
+        } else {
+          throw localErr;
+        }
+      }
 
       clearInterval(progressTimer);
       const data = await response.json();
@@ -285,27 +327,65 @@ export default function Home() {
               </motion.div>
 
               <motion.div variants={itemVariants} className="flex flex-col gap-2">
-                <label htmlFor="targetCol" className="text-xs font-bold text-gray-400 uppercase tracking-wider">Target Variable</label>
-                <input 
-                  type="text" 
-                  id="targetCol" 
-                  value={targetCol}
-                  onChange={(e) => setTargetCol(e.target.value)}
-                  required 
-                  className="tech-input"
-                />
+                <label htmlFor="targetCol" className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span>Target Variable</span>
+                  {previewHeaders.length > 0 && <span className="text-cyan-400 text-[10px] font-normal lowercase">(detected columns)</span>}
+                </label>
+                {previewHeaders.length > 0 ? (
+                  <select 
+                    id="targetCol" 
+                    value={targetCol}
+                    onChange={(e) => setTargetCol(e.target.value)}
+                    required 
+                    className="tech-input cursor-pointer bg-[#0f172a]"
+                  >
+                    {previewHeaders.map((col) => (
+                      <option key={col} value={col} className="bg-[#0f172a] text-gray-200">
+                        {col}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input 
+                    type="text" 
+                    id="targetCol" 
+                    value={targetCol}
+                    onChange={(e) => setTargetCol(e.target.value)}
+                    required 
+                    className="tech-input"
+                  />
+                )}
               </motion.div>
 
               <motion.div variants={itemVariants} className="flex flex-col gap-2">
-                <label htmlFor="sensitiveCol" className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sensitive Attribute</label>
-                <input 
-                  type="text" 
-                  id="sensitiveCol" 
-                  value={sensitiveCol}
-                  onChange={(e) => setSensitiveCol(e.target.value)}
-                  required 
-                  className="tech-input"
-                />
+                <label htmlFor="sensitiveCol" className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span>Sensitive Attribute</span>
+                  {previewHeaders.length > 0 && <span className="text-cyan-400 text-[10px] font-normal lowercase">(detected columns)</span>}
+                </label>
+                {previewHeaders.length > 0 ? (
+                  <select 
+                    id="sensitiveCol" 
+                    value={sensitiveCol}
+                    onChange={(e) => setSensitiveCol(e.target.value)}
+                    required 
+                    className="tech-input cursor-pointer bg-[#0f172a]"
+                  >
+                    {previewHeaders.map((col) => (
+                      <option key={col} value={col} className="bg-[#0f172a] text-gray-200">
+                        {col}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input 
+                    type="text" 
+                    id="sensitiveCol" 
+                    value={sensitiveCol}
+                    onChange={(e) => setSensitiveCol(e.target.value)}
+                    required 
+                    className="tech-input"
+                  />
+                )}
               </motion.div>
 
               <motion.div variants={itemVariants} className="flex flex-col gap-2 mt-2 pt-6 border-t border-[rgba(55,65,81,0.5)]">
@@ -315,7 +395,7 @@ export default function Home() {
                 <input 
                   type="password" 
                   id="geminiKey" 
-                  placeholder="Paste AI Studio Key here"
+                  placeholder="Paste AI Studio Key here (or leave empty to use .env)"
                   value={geminiKey}
                   onChange={(e) => setGeminiKey(e.target.value)}
                   className="tech-input focus:border-purple-500 focus:shadow-[0_0_0_2px_rgba(139,92,246,0.2)]"

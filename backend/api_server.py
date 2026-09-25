@@ -8,6 +8,14 @@ import sys
 import base64
 import json
 try:
+    from dotenv import load_dotenv
+    # Load .env from backend directory or project root
+    load_dotenv()
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+except ImportError:
+    pass
+
+try:
     from google import genai
 except ImportError:
     genai = None
@@ -26,15 +34,33 @@ app.add_middleware(
 if not os.path.exists("static"):
     os.makedirs("static")
 
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "service": "AlgoGuard AI API"}
+
 @app.post("/api/analyze")
 async def analyze(
-    target_col: str = Form("Loan_Status"),
-    sensitive_col: str = Form("Gender"),
+    target_col: str = Form(None),
+    Target: str = Form(None),
+    sensitive_col: str = Form(None),
+    Gender: str = Form(None),
     gemini_api_key: str = Form(None),
     language: str = Form("English"),
     file: UploadFile = File(None)
 ):
     try:
+        try:
+            load_dotenv(override=True)
+            load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"), override=True)
+        except Exception:
+            pass
+
+        resolved_target = target_col or Target or "Loan_Status"
+        resolved_sensitive = sensitive_col or Gender or "Gender"
+        effective_gemini_key = (gemini_api_key.strip() if gemini_api_key and gemini_api_key.strip() else None) or os.getenv("GEMINI_API_KEY")
+        if effective_gemini_key:
+            effective_gemini_key = effective_gemini_key.strip()
+
         csv_path = "data.csv"
         # Handle uploaded file
         if file and file.filename:
@@ -51,7 +77,7 @@ async def analyze(
 
         # Run pipeline via safely resolving python executable
         python_cmd = sys.executable
-        cmd = [python_cmd, "ml_pipeline.py", "--csv", csv_path, "--target_col", target_col, "--sensitive_col", sensitive_col]
+        cmd = [python_cmd, "ml_pipeline.py", "--csv", csv_path, "--target_col", resolved_target, "--sensitive_col", resolved_sensitive]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
         # Read generated images
@@ -68,7 +94,7 @@ async def analyze(
 
         # Generate Gemini AI Ethics Report
         ai_report = ""
-        if gemini_api_key and genai and os.path.exists("metrics.json"):
+        if effective_gemini_key and genai and os.path.exists("metrics.json"):
             try:
                 with open("metrics.json", "r") as f:
                     metrics_data = json.load(f)
@@ -86,12 +112,25 @@ async def analyze(
                     f"IMPORTANT: You MUST write your final response exclusively in {language}."
                 )
                 
-                client = genai.Client(api_key=gemini_api_key)
-                ai_response = client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=prompt
-                )
-                ai_report = ai_response.text
+                client = genai.Client(api_key=effective_gemini_key)
+                candidate_models = ['gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3.1-flash-lite']
+                ai_response = None
+                last_err = None
+                for m in candidate_models:
+                    try:
+                        ai_response = client.models.generate_content(
+                            model=m,
+                            contents=prompt
+                        )
+                        if ai_response and ai_response.text:
+                            ai_report = ai_response.text
+                            break
+                    except Exception as model_err:
+                        last_err = model_err
+                        continue
+
+                if not ai_report and last_err:
+                    raise last_err
             except Exception as e:
                 ai_report = f"⚠ Could not generate AI report: {str(e)}"
 

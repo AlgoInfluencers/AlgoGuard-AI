@@ -9,3 +9,10 @@ uploaded_data.csv
 encoded_*.csv
 edges.csv
 synthetic_data.csv
+graph_input.csv
+metrics.json
+metrics_tradeoff.png
+structural_bias.png
+.env
+.env.*
+!.env.example
